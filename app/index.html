@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>reddit resub</title>
+    <script src="https://unpkg.com/vue"></script>
+  </head>
+  <body>
+
+    <div id="app">
+      <h1 v-if="signedIn"> Signed in as {{ user.username }} </h1>
+      <h1 v-else> Not signed in </h1>
+      <input v-model="userEntry.username"> <br>
+      <input v-model="userEntry.password"> <br>
+      <button v-on:click="signIn">Sign In</button>
+    </div>
+
+    <script type="text/javascript" src="data.js"></script>
+
+  </body>
+</html>
