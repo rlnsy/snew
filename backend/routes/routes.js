@@ -1,7 +1,7 @@
 var appRouter = function(app) {
 
   app.get("/", function(req, res) {
-    res.send("Hello World");
+    res.send("This is the backend node for reddit-resub");
   });
 
   app.get("/account", function(req, res) {

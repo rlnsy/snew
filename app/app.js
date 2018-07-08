@@ -22,10 +22,9 @@ var app = new Vue({
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function() {
           if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
             console.log(xmlHttp.responseText);
         }
-        xmlHttp.open("GET", "http://localhost:3000/account?username=rowan", true);
+        xmlHttp.open("GET", "http://127.0.0.1/api/account?username=rowan", true);
         xmlHttp.send(null);
 
         this.signedIn = true;
