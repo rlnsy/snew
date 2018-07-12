@@ -1,35 +1,37 @@
+const apiURL = "http://vivalasalsa.ca";
+
 var app = new Vue({
   el: '#app',
   data: {
-      userEntry: {
-        username: '',
-        password: '',
-        clear: function() {
-          this.username = '';
-          this.password = '';
-        }
-      },
-      user: {
-        username: '',
-      },
-      signedIn: false,
+    AUTH_STATES: {
+      signedOut: 1,
+      signedInNonAuth: 2,
+      signedInAuth: 3
+    },
+    signInState: {
+      authState: 0,
+      username: null
+    },
   },
 
   methods: {
-    signIn: function() {
-        console.log('signing in user ' + this.userEntry.username);
-
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() {
-          if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            console.log(xmlHttp.responseText);
-        }
-        xmlHttp.open("GET", "http://127.0.0.1/api/account?username=rowan", true);
-        xmlHttp.send(null);
-
-        this.signedIn = true;
-        this.user.username = this.userEntry.username;
-        this.userEntry.clear();
+    signIn: async function() {
+      this.signInState.authState = this.AUTH_STATES.signedInNonAuth;
+    },
+    rAuthenticate: async function() {
+      this.signInState.authState = this.AUTH_STATES.signedInAuth;
     }
   }
 })
+
+function makeGetRequest(url) {
+  return new Promise(resolve => {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() {
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        resolve(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", url, true);
+    xmlHttp.send(null);
+  })
+}

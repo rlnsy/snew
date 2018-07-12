@@ -9,18 +9,29 @@ var appRouter = function(app) {
     console.log(req.query.username);
 
     var accountMock = {
-        "username": "rowan",
-        "password": "pWord",
-        "twitter": "@rowlindsay"
+      "username": "rowan",
+      "password": "pWord",
+      "twitter": "@rowlindsay"
     }
-    if(!req.query.username) {
-        return res.send({"status": "error", "message": "missing username"});
-    } else if(req.query.username != accountMock.username) {
-        return res.send({"status": "error", "message": "wrong username"});
+
+    if (!req.query.username) {
+      return res.send({
+        "status": "error",
+        "message": "missing username"
+      });
+    } else if (req.query.username != accountMock.username) {
+      return res.send({
+        "status": "error",
+        "message": "wrong username"
+      });
     } else {
-        return res.send(accountMock);
+      return res.send(accountMock);
     }
-});
+  });
+
+  app.get("/r-authenticate", function(req, res) {
+    return res.redirect('<reddit auth url>');
+  })
 
 }
 
