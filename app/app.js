@@ -6,7 +6,12 @@ var dbConfig = {
   databaseURL: "https://snew-app.firebaseio.com/",
   storageBucket: "snew-app.appspot.com"
 };
-//firebase.initializeApp(dbConfig).catch(function(error) {});
+
+try {
+  firebase.initializeApp(dbConfig);
+} catch (error) {
+  console.log(error.message);
+}
 
 // Get a reference to the database service
 var database = firebase.database();
@@ -50,9 +55,18 @@ var app = new Vue({
     },
 
     rAuthenticate: async function() {
-      this.signInState.authState = this.AUTH_STATES.signedInAuth;
+      var key = Math.random(); // TODO: use an actual keygen and store result
       var response = await makeGetRequest(apiURL +
-        'rauth?username=' + this.signInState.username);
+        `rauth/make?user=${this.signInState.user}&key=${key}`);
+      console.log(response);
+      // TODO: adjust state based on reponses
+      this.signInState.authState = this.AUTH_STATES.signedInAuth;
+    },
+
+    getStatus: async function() {
+      var response = await makeGetRequest(apiURL +
+        `rauth/status?user=${this.signInState.user}&key=123`);
+      console.log(response);
     }
 
   }

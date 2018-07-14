@@ -12,6 +12,7 @@
 
       <template v-if="signInState.authState == AUTH_STATES.signedInAuth">
         <p> you're good to go </p>
+        <button v-on:click="getStatus()"> get auth status </button>
       </template>
 
       <template v-else-if="signInState.authState == AUTH_STATES.signedInNonAuth">
