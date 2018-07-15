@@ -1,3 +1,5 @@
+const apiURL = "http://vivalasalsa.ca/api/";
+
 var AuthRequest = function(user, key) {
   this.user = user;
   this.key = key;
@@ -28,6 +30,22 @@ function findRequest(user, key) {
     return request;
 }
 
+function AuthURL(stateId) {
+  this.clientId = "eaXyayShEsXmug";
+  this.response_type = "code";
+  this.state = stateId;
+  this.redirect = apiURL + 'rauth/update';
+  this.duration = "permanent";
+  this.scope = "read, subscribe";
+}
+
+AuthURL.prototype.toString = function() {
+  return `https://www.reddit.com/api/v1/authorize?
+  client_id=${this.clientId}&response_type=${this.response_type}&
+  state=${this.state}&redirect_uri=${this.redirect}&
+  duration=${this.duration}&scope=${this.scope}`;
+}
+
 var appRouter = function(app) {
 
   app.get("/", function(req, res) {
@@ -38,8 +56,10 @@ var appRouter = function(app) {
     var user = req.query.user;
     var key = req.query.key;
     console.log('auth for user ' + user);
-    reqs.push(new AuthRequest(user, key));
-    res.send('<reddit url goes here>');
+    var request = new AuthRequest(user, key);
+    reqs.push(request);
+    var url = new AuthURL(request.toString());
+    res.send(url.toString());
   });
 
   app.get("/rauth/status", function(req, res) {
@@ -52,7 +72,9 @@ var appRouter = function(app) {
       res.send(request.status);
   });
 
-  app.get("/rauth/callback", function(req, res) {});
+  app.get("/rauth/update", function(req, res) {});
+
+  app.get("/rauth/retrieve", function(req, res) {});
 
 }
 
