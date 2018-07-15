@@ -56,11 +56,15 @@ var app = new Vue({
 
     rAuthenticate: async function() {
       var key = Math.random(); // TODO: use an actual keygen and store result
-      var response = await makeGetRequest(apiURL +
+      var url = await makeGetRequest(apiURL +
         `rauth/make?user=${this.signInState.user}&key=${key}`);
       console.log(response);
-      // TODO: adjust state based on reponses
-      this.signInState.authState = this.AUTH_STATES.signedInAuth;
+      window.open(url);
+
+      //TODO: use 'rauth retrieve' to refresh page state
+
+    // TODO: adjust state based on reponses
+    //this.signInState.authState = this.AUTH_STATES.signedInAuth;
     },
 
     getStatus: async function() {
