@@ -38,10 +38,10 @@ function AuthURL(state) {
 }
 
 AuthURL.prototype.toString = function() {
-  return `https://www.reddit.com/api/v1/authorize?
-  client_id=${this.clientId}&response_type=${this.response_type}
-  &state=${this.state}&redirect_uri=${this.redirect}
-  &duration=${this.duration}&scope=${this.scope}`;
+  return `https://www.reddit.com/api/v1/authorize?`
+    + `client_id=${this.clientId}&response_type=${this.response_type}`
+    + `&state=${this.state}&redirect_uri=${this.redirect}`
+    + `&duration=${this.duration}&scope=${this.scope}`;
 }
 
 var appRouter = function(app) {

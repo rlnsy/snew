@@ -22,12 +22,6 @@ function User(uid) {
   this.token = null;
 }
 
-const AUTH_STATES = Object.freeze({
-  signedOut: 1,
-  signedInNonAuth: 2,
-  signedInAuth: 3
-});
-
 var app = new Vue({
   el: '#app',
   data: {
@@ -35,6 +29,11 @@ var app = new Vue({
       authState: 0,
       user: null
     },
+    AUTH_STATES: Object.freeze({
+      signedOut: 1,
+      signedInNonAuth: 2,
+      signedInAuth: 3
+    })
   },
 
   methods: {
@@ -65,7 +64,7 @@ var app = new Vue({
       var key = Math.random(); // TODO: use an actual keygen and store result
       var url = await makeGetRequest(apiURL +
         `rauth/make?user=${this.signInState.user.id}&key=${key}`);
-
+      console.log(url);
       window.open(url);
 
     //TODO: use 'rauth retrieve' to refresh page state
