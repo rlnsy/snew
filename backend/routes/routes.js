@@ -9,9 +9,7 @@ var AuthRequest = function(user, key) {
 var reqs = new Array();
 
 function findRequest(user, key) {
-
   var request;
-
   for (r in reqs) {
     var select = reqs[r];
     if (select.user == user)
@@ -30,10 +28,10 @@ function findRequest(user, key) {
     return request;
 }
 
-function AuthURL(stateId) {
+function AuthURL(state) {
   this.clientId = "eaXyayShEsXmug";
   this.response_type = "code";
-  this.state = stateId;
+  this.state = state;
   this.redirect = apiURL + 'rauth/update';
   this.duration = "permanent";
   this.scope = "read, subscribe";
@@ -41,9 +39,9 @@ function AuthURL(stateId) {
 
 AuthURL.prototype.toString = function() {
   return `https://www.reddit.com/api/v1/authorize?
-  client_id=${this.clientId}&response_type=${this.response_type}&
-  state=${this.state}&redirect_uri=${this.redirect}&
-  duration=${this.duration}&scope=${this.scope}`;
+  client_id=${this.clientId}&response_type=${this.response_type}
+  &state=${this.state}&redirect_uri=${this.redirect}
+  &duration=${this.duration}&scope=${this.scope}`;
 }
 
 var appRouter = function(app) {
@@ -72,9 +70,14 @@ var appRouter = function(app) {
       res.send(request.status);
   });
 
-  app.get("/rauth/update", function(req, res) {});
+  app.get("/rauth/update", function(req, res) {
+    // TODO: display a sort of landing page for redirect
+    // TODO: get info from query and attach to request object
+  });
 
-  app.get("/rauth/retrieve", function(req, res) {});
+  app.get("/rauth/retrieve", function(req, res) {
+    // TODO: return the token and close close request
+  });
 
 }
 

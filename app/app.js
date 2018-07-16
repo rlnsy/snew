@@ -16,14 +16,21 @@ try {
 // Get a reference to the database service
 var database = firebase.database();
 
+function User(uid) {
+  this.id = uid;
+  this.authenticated = false;
+  this.token = null;
+}
+
+const AUTH_STATES = Object.freeze({
+  signedOut: 1,
+  signedInNonAuth: 2,
+  signedInAuth: 3
+});
+
 var app = new Vue({
   el: '#app',
   data: {
-    AUTH_STATES: Object.freeze({
-      signedOut: 1,
-      signedInNonAuth: 2,
-      signedInAuth: 3
-    }),
     signInState: {
       authState: 0,
       user: null
@@ -33,7 +40,7 @@ var app = new Vue({
   methods: {
 
     setUser: function(result) {
-      this.signInState.user = result.user.uid;
+      this.signInState.user = new User(result.user.uid);
       this.signInState.authState = this.AUTH_STATES.signedInNonAuth;
 
       var database = firebase.database();
@@ -57,19 +64,18 @@ var app = new Vue({
     rAuthenticate: async function() {
       var key = Math.random(); // TODO: use an actual keygen and store result
       var url = await makeGetRequest(apiURL +
-        `rauth/make?user=${this.signInState.user}&key=${key}`);
-      console.log(response);
+        `rauth/make?user=${this.signInState.user.id}&key=${key}`);
+
       window.open(url);
 
-      //TODO: use 'rauth retrieve' to refresh page state
-
-    // TODO: adjust state based on reponses
+    //TODO: use 'rauth retrieve' to refresh page state
+    //TODO: adjust state based on reponses
     //this.signInState.authState = this.AUTH_STATES.signedInAuth;
     },
 
     getStatus: async function() {
       var response = await makeGetRequest(apiURL +
-        `rauth/status?user=${this.signInState.user}&key=123`);
+        `rauth/status?user=${this.signInState.user.id}&key=123`);
       console.log(response);
     }
 
