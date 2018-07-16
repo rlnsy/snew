@@ -27,7 +27,8 @@ var app = new Vue({
   data: {
     signInState: {
       authState: 0,
-      user: null
+      user: null,
+      authKey: null
     },
     AUTH_STATES: Object.freeze({
       signedOut: 1,
@@ -61,7 +62,8 @@ var app = new Vue({
     },
 
     rAuthenticate: async function() {
-      var key = Math.random(); // TODO: use an actual keygen and store result
+      var key = generateKey();
+      this.signInState.authKey = key;
       var url = await makeGetRequest(apiURL +
         `rauth/make?user=${this.signInState.user.id}&key=${key}`);
       console.log(url);
@@ -74,12 +76,18 @@ var app = new Vue({
 
     getStatus: async function() {
       var response = await makeGetRequest(apiURL +
-        `rauth/status?user=${this.signInState.user.id}&key=123`);
+        `rauth/status?user=${this.signInState.user.id}`
+        + `&key=${this.signInState.authKey}`);
       console.log(response);
     }
 
   }
 })
+
+function generateKey() {
+  return Math.round((Math.pow(36, length + 1)
+    - Math.random() * Math.pow(36, length))).toString(36).slice(1);
+}
 
 async function makeGetRequest(url) {
   console.log('making api call to get...');

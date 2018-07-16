@@ -6,6 +6,10 @@ var AuthRequest = function(user, key) {
   this.status = 'new';
 }
 
+AuthRequest.prototype.stateGen = function() {
+  return this.user + this.key;
+};
+
 var reqs = new Array();
 
 function findRequest(user, key) {
@@ -34,7 +38,7 @@ function AuthURL(state) {
   this.state = state;
   this.redirect = apiURL + 'rauth/update';
   this.duration = "permanent";
-  this.scope = "read, subscribe";
+  this.scope = "read,subscribe";
 }
 
 AuthURL.prototype.toString = function() {
@@ -56,7 +60,7 @@ var appRouter = function(app) {
     console.log('auth for user ' + user);
     var request = new AuthRequest(user, key);
     reqs.push(request);
-    var url = new AuthURL(request.toString());
+    var url = new AuthURL(request.stateGen());
     res.send(url.toString());
   });
 
