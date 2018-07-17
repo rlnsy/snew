@@ -62,7 +62,8 @@ var app = new Vue({
     },
 
     rAuthenticate: async function() {
-      var key = generateKey();
+      var key = generateKey(16);
+      console.log(`key generated: ${key}`);
       this.signInState.authKey = key;
       var url = await makeGetRequest(apiURL +
         `rauth/make?user=${this.signInState.user.id}&key=${key}`);
@@ -84,9 +85,13 @@ var app = new Vue({
   }
 })
 
-function generateKey() {
-  return Math.round((Math.pow(36, length + 1)
-    - Math.random() * Math.pow(36, length))).toString(36).slice(1);
+const keyChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZacdefghijklmnopqrstuvwxyz123456789';
+function generateKey(bits) {
+  if (bits == 0) return ``;
+  else {
+    var charSelect = Math.floor(Math.random() * keyChars.length);
+    return `${keyChars.charAt(charSelect)}` + generateKey(bits - 1);
+  }
 }
 
 async function makeGetRequest(url) {
