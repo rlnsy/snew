@@ -4,11 +4,19 @@ var AuthRequest = function(user, key) {
   this.user = user;
   this.key = key;
   this.status = 'new';
-}
+};
 
 AuthRequest.prototype.stateGen = function() {
-  return this.user + this.key;
+  return `{ "user": "${this.user}","key": "${this.key}" }`;
 };
+
+function decodeState(state) {
+  var decode = JSON.parse(state);
+  return {
+    user: decode.user,
+    key: decode.key
+  }
+}
 
 var reqs = new Array();
 
@@ -75,8 +83,18 @@ var appRouter = function(app) {
   });
 
   app.get("/rauth/update", function(req, res) {
-    // TODO: display a sort of landing page for redirect
-    // TODO: get info from query and attach to request object
+    // TODO: display a better landing page for redirect
+    if (req.query.error) {
+      res.send("there was an error authorizing reddit");
+    } else {
+      var stateInfo = decodeState(req.query.state);
+      var user = stateInfo.user;
+      var key = stateInfo.key;
+      var request = findRequest(user, key);
+      if (request.error) res.send('an internal error occurred');
+      // TODO: retrieve token and save in request
+      res.send(`user ${user} authorized!`);
+    }
   });
 
   app.get("/rauth/retrieve", function(req, res) {
