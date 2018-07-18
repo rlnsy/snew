@@ -1,17 +1,29 @@
-const apiURL = "http://vivalasalsa.ca/api/";
+const https = require('https');
+const apiURL = 'http://vivalasalsa.ca/api/';
+const redirect = apiURL + 'rauth/update';
+const clientId = "eaXyayShEsXmug";
+const secret = require('./client-secret');
+const querystring = require('querystring');
+const btoa = require('btoa');
+const atob = require('atob');
 
 var AuthRequest = function(user, key) {
   this.user = user;
   this.key = key;
-  this.status = 'new';
+  this.status = 'new'; // TODO: use a boolean
+  this.token = null;
 };
 
 AuthRequest.prototype.stateGen = function() {
-  return `{ "user": "${this.user}","key": "${this.key}" }`;
+  return btoa(`{ "user": "${this.user}","key": "${this.key}" }`);
 };
 
+function basicAuthEncode(user, pass) {
+  return 'Basic ' + Buffer.from(user + ':' + pass).toString('base64');
+}
+
 function decodeState(state) {
-  var decode = JSON.parse(state);
+  var decode = JSON.parse(atob(state));
   return {
     user: decode.user,
     key: decode.key
@@ -41,10 +53,10 @@ function findRequest(user, key) {
 }
 
 function AuthURL(state) {
-  this.clientId = "eaXyayShEsXmug";
+  this.clientId = clientId;
   this.response_type = "code";
   this.state = state;
-  this.redirect = apiURL + 'rauth/update';
+  this.redirect = redirect;
   this.duration = "permanent";
   this.scope = "read,subscribe";
 }
@@ -65,7 +77,6 @@ var appRouter = function(app) {
   app.get("/rauth/make", function(req, res) {
     var user = req.query.user;
     var key = req.query.key;
-    console.log('auth for user ' + user);
     var request = new AuthRequest(user, key);
     reqs.push(request);
     var url = new AuthURL(request.stateGen());
@@ -78,8 +89,12 @@ var appRouter = function(app) {
     var request = findRequest(user, key);
     if (request.error)
       res.send(request.error);
-    else
-      res.send(request.status);
+    else {
+      res.send({
+        status: request.status,
+        token: request.token
+      });
+    }
   });
 
   app.get("/rauth/update", function(req, res) {
@@ -91,8 +106,14 @@ var appRouter = function(app) {
       var user = stateInfo.user;
       var key = stateInfo.key;
       var request = findRequest(user, key);
-      if (request.error) res.send('an internal error occurred');
+      if (request.error)
+        res.send("Could not find authorization request matching the provided user and key");
       // TODO: retrieve token and save in request
+      var code = req.query.code;
+      postTokenRetrieve(code).then(function(token) {
+        request.token = token;
+        request.status = 'authorized';
+      });
       res.send(`user ${user} authorized!`);
     }
   });
@@ -101,6 +122,44 @@ var appRouter = function(app) {
     // TODO: return the token and close close request
   });
 
+}
+
+async function postTokenRetrieve(code) {
+  return new Promise(resolve => {
+    var data = querystring.stringify({
+      "grant_type": "authorization_code",
+      "code": code,
+      "redirect_uri": redirect
+    });
+
+    var options = {
+      hostname: 'ssl.reddit.com',
+      port: 443,
+      path: '/api/v1/access_token',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': data.length,
+        'Authorization': basicAuthEncode(clientId, secret)
+      }
+    }
+
+    var req = https.request(options, (res) => {
+      var response = "";
+      res.on("data", function(data) {
+        response += data;
+      });
+      res.on("end", function() {
+        resolve(JSON.parse(response).access_token);
+      });
+    });
+
+    req.on('error', (e) => {
+      console.error(e);
+    });
+
+    req.write(data); req.end();
+  });
 }
 
 module.exports = appRouter;

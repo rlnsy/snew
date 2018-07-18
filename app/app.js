@@ -29,7 +29,7 @@ var app = new Vue({
       authState: 0,
       user: null,
       authKey: null
-    },
+    }, // TODO: save state in browser for refreshing
     AUTH_STATES: Object.freeze({
       signedOut: 1,
       signedInNonAuth: 2,

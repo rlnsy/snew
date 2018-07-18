@@ -9,7 +9,10 @@
   "author": "rowlindsay",
   "license": "ISC",
   "dependencies": {
+    "atob": "^2.1.1",
     "body-parser": "^1.18.3",
+    "btoa": "^1.2.1",
+    "cors": "^2.8.4",
     "express": "^4.16.3"
   }
 }
