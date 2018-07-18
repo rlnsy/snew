@@ -17,7 +17,7 @@
       <template v-else-if="signInState.authState == AUTH_STATES.signedInNonAuth">
         <p> You are not yet authorized reddit </p>
         <button v-on:click="rAuthenticate()"> Authorize Reddit </button>
-        <button v-on:click="getStatus()"> Get Authorization Status </button>
+        <button v-on:click="refreshStatus()"> Refresh Authorization Status </button>
       </template>
 
       <template v-else>

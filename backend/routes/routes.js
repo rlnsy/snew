@@ -10,7 +10,7 @@ const atob = require('atob');
 var AuthRequest = function(user, key) {
   this.user = user;
   this.key = key;
-  this.status = 'new'; // TODO: use a boolean
+  this.authorized = false;
   this.token = null;
 };
 
@@ -91,8 +91,7 @@ var appRouter = function(app) {
       res.send(request.error);
     else {
       res.send({
-        status: request.status,
-        token: request.token
+        authorized: request.status
       });
     }
   });
@@ -108,18 +107,23 @@ var appRouter = function(app) {
       var request = findRequest(user, key);
       if (request.error)
         res.send("Could not find authorization request matching the provided user and key");
-      // TODO: retrieve token and save in request
       var code = req.query.code;
       postTokenRetrieve(code).then(function(token) {
         request.token = token;
-        request.status = 'authorized';
+        request.authorized = true;
       });
-      res.send(`user ${user} authorized!`);
+      res.send(`User authorized; Refresh status to continue.`);
     }
   });
 
   app.get("/rauth/retrieve", function(req, res) {
-    // TODO: return the token and close close request
+    var request = findRequest(req.query.user, req.query.key);
+    if (request.authorized) {
+      var token = request.token;
+      reqs.pop(request);
+      res.send(token);
+    }
+    else res.send("token could not be found");
   });
 
 }

@@ -63,11 +63,9 @@ var app = new Vue({
 
     rAuthenticate: async function() {
       var key = generateKey(16);
-      console.log(`key generated: ${key}`);
       this.signInState.authKey = key;
       var url = await makeGetRequest(apiURL +
         `rauth/make?user=${this.signInState.user.id}&key=${key}`);
-      console.log(url);
       window.open(url);
 
     //TODO: use 'rauth retrieve' to refresh page state
@@ -75,13 +73,17 @@ var app = new Vue({
     //this.signInState.authState = this.AUTH_STATES.signedInAuth;
     },
 
-    getStatus: async function() {
+    refreshStatus: async function() {
       var response = await makeGetRequest(apiURL +
         `rauth/status?user=${this.signInState.user.id}`
         + `&key=${this.signInState.authKey}`);
-      console.log(response);
+      if (response) {
+        var token = await makeGetRequest(apiURL +
+          `rauth/retrieve?user=${this.signInState.user.id}`
+          + `&key=${this.signInState.authKey}`);
+        console.log(`Token got: ${token}`);
+      }
     }
-
   }
 })
 
@@ -95,12 +97,10 @@ function generateKey(bits) {
 }
 
 async function makeGetRequest(url) {
-  console.log('making api call to get...');
   return new Promise(resolve => {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() {
       if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-        console.log('get recieved a response');
         resolve(xmlHttp.responseText);
       }
     }
