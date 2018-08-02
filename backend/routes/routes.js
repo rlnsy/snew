@@ -7,15 +7,20 @@ const querystring = require('querystring');
 const btoa = require('btoa');
 const atob = require('atob');
 
+// TODO: rework to use local database and authentication
+// TODO: test
+
 var AuthRequest = function(user, key) {
   this.user = user;
   this.key = key;
   this.authorized = false;
   this.token = null;
+  this.state_id = null;
 };
 
 AuthRequest.prototype.stateGen = function() {
-  return btoa(`{ "user": "${this.user}","key": "${this.key}" }`);
+  this.state_id = btoa(`{ "user": "${this.user}","key": "${this.key}" }`);
+  return this.state_id;
 };
 
 function basicAuthEncode(user, pass) {
@@ -30,21 +35,15 @@ function decodeState(state) {
   }
 }
 
-var reqs = new Array();
+var reqs = {}
 
-function findRequest(user, key) {
-  var request;
-  for (r in reqs) {
-    var select = reqs[r];
-    if (select.user == user)
-      request = select;
-  } // TODO: hash and use a dictionary
-
+function findRequest(state) {
+  var request = reqs[state];
   if (request == null)
     return {
       error: 'does not exist'
     };
-  else if (key != request.key)
+  else if (decodeState(state).key != request.key)
     return {
       error: 'key mismatch'
     };
@@ -78,15 +77,16 @@ var appRouter = function(app) {
     var user = req.query.user;
     var key = req.query.key;
     var request = new AuthRequest(user, key);
-    reqs.push(request);
-    var url = new AuthURL(request.stateGen());
+    var state = request.stateGen()
+    reqs[state] = request;
+    var url = new AuthURL(state);
     res.send(url.toString());
   });
 
   app.get("/rauth/status", function(req, res) {
-    var user = req.query.user;
-    var key = req.query.key;
-    var request = findRequest(user, key);
+    // TODO: update front-end call
+    var state = req.query.state;
+    var request = findRequest(state);
     if (request.error)
       res.send(request.error);
     else {
@@ -101,10 +101,8 @@ var appRouter = function(app) {
     if (req.query.error) {
       res.send("there was an error authorizing reddit");
     } else {
-      var stateInfo = decodeState(req.query.state);
-      var user = stateInfo.user;
-      var key = stateInfo.key;
-      var request = findRequest(user, key);
+      var state = req.query.state;
+      var request = findRequest(state);
       if (request.error)
         res.send("Could not find authorization request matching the provided user and key");
       var code = req.query.code;
@@ -117,7 +115,8 @@ var appRouter = function(app) {
   });
 
   app.get("/rauth/retrieve", function(req, res) {
-    var request = findRequest(req.query.user, req.query.key);
+    // TODO: update front-end call
+    var request = findRequest(req.query.state);
     if (request.authorized) {
       var token = request.token;
       reqs.pop(request);
