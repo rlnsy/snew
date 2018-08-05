@@ -1,6 +1,6 @@
 .DS_store
 
-backend/routes/client-secret.js
+backend/rclient.js
 
 ### Node ###
 # Logs
