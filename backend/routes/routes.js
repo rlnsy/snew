@@ -3,7 +3,7 @@ var https = require('https'),
   crypto = require('crypto'),
   mongoose = require('mongoose'),
   RedditStrategy = require('passport-reddit').Strategy,
-  client = require('../client');
+  client = require('../rclient');
 
 //TODO: update front end / provide better views for welcome&login
   //TODO: figure out how to integrate vue with redirect
@@ -20,7 +20,6 @@ passport.use(new RedditStrategy({
     User.findOne({
       'redditId': profile.id
     }, function(err, result) {
-      console.log('function');
       if (!result) {
         console.log('no record found for user, creating...');
         user = new User({
@@ -47,7 +46,9 @@ var appRouter = function(app) {
   });
 
   app.get('/home', ensureAuthenticated, function(req, res) {
-    res.send("This is the home page, congrats on logging in!");
+    var user = req.user;
+    var uid = user.redditId;
+    res.send('Logged in as ' + uid);
   });
 
   app.get('/welcome', function(req, res) {
