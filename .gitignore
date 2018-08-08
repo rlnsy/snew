@@ -1,6 +1,6 @@
 .DS_store
 
-backend/rclient.js
+backend/client.js
 
 ### Node ###
 # Logs

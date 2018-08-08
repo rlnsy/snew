@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
 module.exports = mongoose.model('User', {
-  redditId: String,
+  id: String,
+  token: String,
 });

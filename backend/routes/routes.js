@@ -3,32 +3,25 @@ var https = require('https'),
   crypto = require('crypto'),
   mongoose = require('mongoose'),
   RedditStrategy = require('passport-reddit').Strategy,
-  client = require('../rclient');
+  client = require('../client');
 
-//TODO: update front end / provide better views for welcome&login
-  //TODO: figure out how to integrate vue with redirect
+//TODO: figure out how to handle callback without serving pages
 
 var User = require('../model/user');
 
 passport.use(new RedditStrategy({
   clientID: client.clientID,
   clientSecret: client.clientSecret,
-  callbackURL: "http://vivalasalsa.ca/api/auth/reddit/callback"
+  callbackURL: client.url + "/auth/reddit/callback"
 },
   function(accessToken, refreshToken, profile, done) {
     console.log('authenticating user...');
     User.findOne({
-      'redditId': profile.id
+      'id': profile.id
     }, function(err, result) {
       if (!result) {
         console.log('no record found for user, creating...');
-        user = new User({
-          redditId: profile.id,
-        })
-        user.save(function(err) {
-          console.log('saving new user...');
-          if (err) console.log(err);
-        });
+        saveNewUser(profile.id);
         return done(err, user);
       } else {
         console.log('found user');
@@ -45,14 +38,19 @@ var appRouter = function(app) {
     res.send("This is the backend node for reddit-resub");
   });
 
-  app.get('/home', ensureAuthenticated, function(req, res) {
+  app.get('/session', ensureAuthenticated, function(req, res) {
     var user = req.user;
-    var uid = user.redditId;
-    res.send('Logged in as ' + uid);
+    var uid = user.id;
+    res.send({
+      authorized: true,
+      user: uid
+    });
   });
 
-  app.get('/welcome', function(req, res) {
-    res.send("Welcome! Log in with Reddit to begin");
+  app.get('/failauth', function(req, res) {
+    res.send({
+      authorized: false
+    });
   });
 
   app.get('/auth/reddit', function(req, res, next) {
@@ -69,8 +67,8 @@ var appRouter = function(app) {
     if (req.query.state == req.session.state) {
       console.log('state confirmed');
       passport.authenticate('reddit', {
-        successRedirect: '/api/home',
-        failureRedirect: '/api/welcome'
+        successRedirect: '/api/session',
+        failureRedirect: '/api/failauth'
       })(req, res, next);
     } else {
       next(new Error(403));
@@ -79,11 +77,21 @@ var appRouter = function(app) {
 
 }
 
+function saveNewUser(id) {
+  user = new User({
+    'id': id,
+  })
+  user.save(function(err) {
+    console.log('saving new user...');
+    if (err) console.log(err);
+  });
+}
+
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('welcome');
+  res.redirect('auth/reddit');
 }
 
 module.exports = appRouter;
