@@ -8,16 +8,20 @@ var app = new Vue({
   },
 
   data: {
-    authed: false,
-    user: null
+    login: {
+      authed: false,
+      user: null,
+    },
+    otherprop: 'other val'
   },
 
   methods: {
     refreshLoginState: function() {
       makeGetRequest(apiURL + 'session').then(res => {
-        this.authed = res.authed;
-        if (this.authed)
-          this.user = res.user;
+        console.log(res);
+        this.login.authed = res.authed;
+        if (this.login.authed)
+          this.login.user = res.user;
       });
     }
   }

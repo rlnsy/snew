@@ -16,17 +16,19 @@ var appRouter = function(app) {
   // A convenient endpoint for checking authenitcation
   // and getting all user info
   app.get('/session', function(req, res) {
-    var info;
     if (req.isAuthenticated()) {
+      var user = req.user;
+      console.log(user);
+      var uid = user.id;
       res.send({
         authed: true,
-        user: req.user
+        user: user
       });
     } else {
       res.send({
         authed: false,
-        user: null
-      });
+        user: user
+      })
     }
   });
 
@@ -91,10 +93,9 @@ function ensureAuthenticated(req, res, next) {
 
 var User = require('../model/user');
 
-function saveNewUser(id, token) {
+function saveNewUser(id) {
   user = new User({
     'id': id,
-    'token': token
   })
   user.save(function(err) {
     console.log('saving new user...');
@@ -115,7 +116,7 @@ passport.use(new RedditStrategy({
     }, function(err, result) {
       if (!result) {
         console.log('no record found for user, creating...');
-        saveNewUser(profile.id, accessToken);
+        saveNewUser(profile.id);
         return done(err, user);
       } else {
         console.log('found user');

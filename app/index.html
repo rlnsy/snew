@@ -3,46 +3,25 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>reddit resub</title>
+    <title>Snew</title>
     <script src="https://unpkg.com/vue"></script>
   </head>
   <body>
 
     <div id="app">
 
-      <template v-if="signInState.authState == AUTH_STATES.signedInAuth">
-        <p> You're good to go! </p>
-      </template>
+      <h2>Welcome to Snew, the app for discovering communities that might normally
+        remain hidden to you.</h2>
 
-      <template v-else-if="signInState.authState == AUTH_STATES.signedInNonAuth">
-        <p> You are not yet authorized reddit </p>
-        <button v-on:click="rAuthenticate()"> Authorize Reddit </button>
-        <button v-on:click="refreshStatus()"> Refresh Authorization Status </button>
-      </template>
+      <p>In order to get info about your content-circles, Snew connects to a reddit account
+        and analyzes community vector spaces using various algorithms. New subreddits will appear to you
+        and you can quickly and recreate your entire subscription list with the community manager.</p>
 
-      <template v-else>
-        <p> You are signed ooout </p> <br>
-        <button v-on:click="signIn()"> Sign In </button>
-      </template>
+      <a href="http://vivalasalsa.ca/api/signup/new">Get Started</a>
 
     </div>
 
   </body>
-
-  <script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
-
-  <script>
-    // Initialize Firebase
-    var config = {
-      apiKey: "AIzaSyAgLfyANKhvunmuzFI1WT9t4hQ-7GMSjo4",
-      authDomain: "snew-app.firebaseapp.com",
-      databaseURL: "https://snew-app.firebaseio.com",
-      projectId: "snew-app",
-      storageBucket: "",
-      messagingSenderId: "410673057419"
-    };
-    firebase.initializeApp(config);
-  </script>
 
   <script type="text/javascript" src="app.js"></script>
 
