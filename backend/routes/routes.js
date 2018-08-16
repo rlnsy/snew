@@ -30,20 +30,20 @@ var appRouter = function(app) {
     }
   });
 
-  // Static page servers for navigating users through authorization
-  app.get('/signup/new', function(req, res) {
-    res.sendfile('form.html', {
+  // Static pages for guiding the user through authentication
+  app.get('auth/prompt', function(req, res) {
+    res.sendfile('auth_prompt.html', {
       root: __dirname + '/../public'
     });
   });
 
-  app.get('/signup/confirm', function(req, res) {
+  app.get('/auth/confirm', function(req, res) {
     res.sendfile('done.html', {
       root: __dirname + '/../public'
     });
   });
 
-  app.get('/signup/error', function(req, res) {
+  app.get('/auth/error', function(req, res) {
     res.sendfile('autherr.html', {
       root: __dirname + '/../public'
     });
@@ -67,9 +67,9 @@ var appRouter = function(app) {
       console.log('state confirmed');
       passport.authenticate('reddit', {
         // TODO: implement middle point for doing things?
-        successRedirect: '/api/signup/confirm',
+        successRedirect: '/api/auth/confirm',
         // TODO: update fail dest
-        failureRedirect: '/api/signup/error'
+        failureRedirect: '/api/auth/error'
       })(req, res, next);
     } else {
       next(new Error(403));
@@ -84,7 +84,7 @@ function ensureAuthenticated(req, res, next) {
     return next();
   }
   // Redirect user to registration form
-  res.redirect('signup/new');
+  res.redirect('auth/prompt');
 }
 
 // Database
