@@ -91,9 +91,10 @@ function ensureAuthenticated(req, res, next) {
 
 var User = require('../model/user');
 
-function saveNewUser(id, token) {
+function saveNewUser(id, name, token) {
   user = new User({
     'id': id,
+    'name': name,
     'token': token
   })
   user.save(function(err) {
@@ -115,7 +116,7 @@ passport.use(new RedditStrategy({
     }, function(err, result) {
       if (!result) {
         console.log('no record found for user, creating...');
-        saveNewUser(profile.id, accessToken);
+        saveNewUser(profile.id, profile.name, accessToken);
         return done(err, user);
       } else {
         console.log('found user');
