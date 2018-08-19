@@ -3,7 +3,8 @@ var https = require('https'),
   crypto = require('crypto'),
   mongoose = require('mongoose'),
   RedditStrategy = require('passport-reddit').Strategy,
-  client = require('../client');
+  client = require('../client'),
+  snoowrap = require('snoowrap');
 
 //TODO: implement basic auth and make reddit register only
 
@@ -29,6 +30,23 @@ var appRouter = function(app) {
       });
     }
   });
+
+  app.get('/reddit/subscriptions', function(req, res) {
+    if (req.isAuthenticated()) {
+      getSubscriptions(req.user) //stub
+    /*
+    r_ref = new snoowrap({
+      userAgent: 'sub-discovery API by u/snewapp',
+      clientId: client.clientID,
+      clientSecret: client.clientSecret,
+      refreshToken: req.user.token
+    });
+    r_ref.getUser().getSubscriptions().then((result) => res.send(result));
+    */
+    } else {
+      res.send('Not signed in')
+    }
+  })
 
   // Static pages for guiding the user through authentication
   app.get('auth/prompt', function(req, res) {
@@ -116,7 +134,7 @@ passport.use(new RedditStrategy({
     }, function(err, result) {
       if (!result) {
         console.log('no record found for user, creating...');
-        saveNewUser(profile.id, profile.name, accessToken);
+        saveNewUser(profile.id, profile.name, refreshToken);
         return done(err, user);
       } else {
         console.log('found user');
