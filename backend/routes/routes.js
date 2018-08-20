@@ -4,7 +4,7 @@ var https = require('https'),
   mongoose = require('mongoose'),
   RedditStrategy = require('passport-reddit').Strategy,
   client = require('../client'),
-  snoowrap = require('snoowrap');
+  reddit = require('../reddit');
 
 //TODO: implement basic auth and make reddit register only
 
@@ -33,16 +33,7 @@ var appRouter = function(app) {
 
   app.get('/reddit/subscriptions', function(req, res) {
     if (req.isAuthenticated()) {
-      getSubscriptions(req.user) //stub
-    /*
-    r_ref = new snoowrap({
-      userAgent: 'sub-discovery API by u/snewapp',
-      clientId: client.clientID,
-      clientSecret: client.clientSecret,
-      refreshToken: req.user.token
-    });
-    r_ref.getUser().getSubscriptions().then((result) => res.send(result));
-    */
+      reddit.getSubscriptions(req.user)
     } else {
       res.send('Not signed in')
     }
