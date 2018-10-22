@@ -2,6 +2,11 @@
 
 backend/client.js
 
+.idea/*
+
+### Jetbrains IDE ###
+*.xml
+
 ### Node ###
 # Logs
 logs
